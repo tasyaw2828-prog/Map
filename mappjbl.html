@@ -1,0 +1,2573 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Peta Wisata Malang Raya</title>
+
+  <!-- LEAFLET -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  >
+
+  <!-- GOOGLE FONT -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Work+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    :root {
+      --cream: #f7f1e5;
+      --paper: #fffaf0;
+      --espresso: #3b2418;
+      --coffee: #5b3826;
+      --walnut: #765033;
+      --caramel: #b9752f;
+      --gold: #d9a441;
+      --cream-line: #e5d7bf;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--espresso);
+      font-family: "Work Sans", sans-serif;
+    }
+
+    header {
+      background: var(--espresso);
+      color: white;
+      padding: 25px 20px 22px;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .title {
+      margin: 0;
+      font-family: "Fraunces", serif;
+      font-size: 32px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: #eadfce;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .tabs-wrapper {
+      background: var(--paper);
+      border-bottom: 1px solid var(--cream-line);
+      overflow-x: auto;
+    }
+
+    .tabs {
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      gap: 8px;
+      padding: 12px 15px;
+      overflow-x: auto;
+    }
+
+    .tabs::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .tabs::-webkit-scrollbar-thumb {
+      background: var(--walnut);
+      border-radius: 20px;
+    }
+
+    .tab {
+      flex: 0 0 auto;
+      border: 1px solid var(--cream-line);
+      background: white;
+      color: var(--espresso);
+      border-radius: 30px;
+      padding: 10px 15px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .tab:hover {
+      transform: translateY(-1px);
+    }
+
+    .tab.active {
+      background: var(--espresso);
+      color: white;
+      border-color: var(--espresso);
+    }
+
+    .layout {
+      max-width: 1200px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr;
+      gap: 18px;
+      padding: 18px;
+    }
+
+    .map-wrapper {
+      position: relative;
+    }
+
+    #map {
+      width: 100%;
+      height: 650px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--cream-line);
+      box-shadow: 0 8px 25px rgba(59, 36, 24, 0.08);
+    }
+
+    .list {
+      height: 650px;
+      overflow-y: auto;
+      padding-right: 3px;
+    }
+
+    .list-title {
+      margin: 0 0 12px;
+      font-family: "Fraunces", serif;
+      font-size: 22px;
+    }
+
+    .list-count {
+      color: var(--walnut);
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--cream-line);
+      border-radius: 16px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(59, 36, 24, 0.10);
+    }
+
+    .card-content {
+      padding: 14px;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .card-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.3;
+    }
+
+    .card-region {
+      margin-top: 4px;
+      color: var(--walnut);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .card-desc {
+      margin: 10px 0 0;
+      color: #634d3d;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .badge {
+      background: #f0e5d2;
+      color: var(--coffee);
+      border-radius: 20px;
+      padding: 5px 8px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* =========================================
+       MARKER WISATA
+    ========================================= */
+
+    .custom-marker {
+      width: 38px;
+      height: 38px;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid white;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+    }
+
+    .custom-marker span {
+      transform: rotate(45deg);
+      font-size: 18px;
+    }
+
+
+    /* =========================================
+       MARKER TITIK AWAL
+    ========================================= */
+
+    .start-marker {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--espresso);
+      border: 4px solid white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 22px;
+    }
+
+    .start-label {
+      background: var(--espresso);
+      color: white;
+
+      border: none;
+      border-radius: 8px;
+
+      padding: 6px 9px;
+
+      font-size: 12px;
+      font-weight: 700;
+
+      box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+
+      white-space: nowrap;
+    }
+
+    .start-label::before {
+      border-top-color: var(--espresso) !important;
+    }
+
+
+    /* =========================================
+       POPUP
+    ========================================= */
+
+    .leaflet-popup-content-wrapper {
+      border-radius: 12px;
+    }
+
+    .popup-title {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .popup-region {
+      color: var(--walnut);
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+
+    .popup-distance {
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .popup-button {
+      border: none;
+      background: var(--espresso);
+      color: white;
+      border-radius: 8px;
+      padding: 7px 10px;
+      cursor: pointer;
+      font-size: 11px;
+      margin-right: 4px;
+    }
+
+    .route-popup-button {
+      border: none;
+      background: var(--caramel);
+      color: white;
+      border-radius: 8px;
+      padding: 7px 10px;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+
+    /* =========================================
+       DETAIL SHEET
+    ========================================= */
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(25, 16, 11, 0.55);
+      z-index: 9998;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .overlay.show {
+      display: flex;
+    }
+
+    .sheet {
+      width: min(760px, 100%);
+      max-height: 92vh;
+      background: var(--paper);
+      border-radius: 25px 25px 0 0;
+      overflow: hidden;
+      position: relative;
+      animation: slideUp 0.25s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%);
+      }
+
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    .sheet-inner {
+      overflow-y: auto;
+      max-height: 92vh;
+      padding-bottom: 30px;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 5;
+      width: 38px;
+      height: 38px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.92);
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    }
+
+    .sheet-image {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      background: #e8dcc9;
+    }
+
+    .sheet-content {
+      padding: 20px;
+    }
+
+    .sheet-category {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .sheet-title {
+      margin: 0;
+      font-family: "Fraunces", serif;
+      font-size: 30px;
+      line-height: 1.2;
+    }
+
+    .sheet-address {
+      margin: 8px 0 0;
+      color: #725b49;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .distance-box {
+      margin-top: 18px;
+      background: #efe1ca;
+      border: 1px solid #dfcba9;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .distance-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #856d57;
+      margin-bottom: 5px;
+    }
+
+    .distance-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--espresso);
+    }
+
+    .distance-note {
+      margin-top: 4px;
+      font-size: 11px;
+      color: #765f4b;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .info-box {
+      background: #f3e9d8;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .info-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #856d57;
+      margin-bottom: 5px;
+    }
+
+    .info-value {
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .detail-section {
+      margin-top: 20px;
+    }
+
+    .detail-section h3 {
+      margin: 0 0 8px;
+      font-family: "Fraunces", serif;
+      font-size: 20px;
+    }
+
+    .detail-section p {
+      margin: 0;
+      color: #5f4a39;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .detail-section ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+      color: #5f4a39;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .accessibility-box {
+      background: #f3e9d8;
+      border: 1px solid var(--cream-line);
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 10px;
+    }
+
+    .accessibility-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 8px 0;
+      border-bottom: 1px solid #e5d7bf;
+    }
+
+    .accessibility-item:last-child {
+      border-bottom: none;
+    }
+
+    .accessibility-icon {
+      font-size: 18px;
+      width: 25px;
+      flex-shrink: 0;
+    }
+
+    .accessibility-text {
+      font-size: 13px;
+      color: #5f4a39;
+      line-height: 1.5;
+    }
+
+    .accessibility-text strong {
+      color: var(--espresso);
+    }
+
+    .travel-note {
+      margin-bottom: 10px;
+      padding: 10px 12px;
+      background: #f3e9d8;
+      border-radius: 10px;
+      color: #765f4b;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .travel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .travel-box {
+      background: white;
+      border: 1px solid var(--cream-line);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .travel-price {
+      margin-top: 4px;
+      color: var(--walnut);
+      font-weight: 700;
+    }
+
+    .maps-btn {
+      display: block;
+      width: 100%;
+      margin-top: 20px;
+      padding: 13px 16px;
+      border: none;
+      border-radius: 12px;
+      background: var(--espresso);
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .maps-btn:hover {
+      background: var(--coffee);
+    }
+
+    .empty {
+      padding: 30px 15px;
+      text-align: center;
+      color: var(--walnut);
+      background: var(--paper);
+      border: 1px solid var(--cream-line);
+      border-radius: 15px;
+    }
+
+    @media (max-width: 800px) {
+
+      .title {
+        font-size: 26px;
+      }
+
+      .layout {
+        display: block;
+        padding: 12px;
+      }
+
+      #map {
+        height: 430px;
+        margin-bottom: 18px;
+      }
+
+      .list {
+        height: auto;
+        overflow: visible;
+      }
+
+      .sheet-image {
+        height: 230px;
+      }
+
+      .sheet-title {
+        font-size: 26px;
+      }
+    }
+
+    @media (max-width: 480px) {
+
+      header {
+        padding: 20px 15px;
+      }
+
+      .title {
+        font-size: 23px;
+      }
+
+      .subtitle {
+        font-size: 12px;
+      }
+
+      .tabs {
+        padding: 10px;
+      }
+
+      .tab {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+
+      #map {
+        height: 380px;
+      }
+
+      .sheet-image {
+        height: 200px;
+      }
+
+      .info-grid,
+      .travel-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-inner">
+
+    <h1 class="title">
+      Peta Wisata Malang Raya
+    </h1>
+
+    <p class="subtitle">
+      Temukan berbagai destinasi wisata berdasarkan kategori,
+      mulai dari wisata alam, budaya, sejarah, religi, kuliner,
+      belanja, pertanian, petualangan, hingga wisata buatan.
+    </p>
+
+  </div>
+</header>
+
+<div class="tabs-wrapper">
+  <div class="tabs" id="tabs"></div>
+</div>
+
+<main class="layout">
+
+  <div class="map-wrapper">
+
+    <div id="map"></div>
+
+  </div>
+
+  <section class="list">
+
+    <h2 class="list-title">
+      Destinasi Wisata
+    </h2>
+
+    <div class="list-count" id="listCount"></div>
+
+    <div id="placeList"></div>
+
+  </section>
+
+</main>
+
+<div class="overlay" id="overlay">
+
+  <div class="sheet">
+
+    <button class="close-btn" onclick="closeSheet()">
+      ×
+    </button>
+
+    <div class="sheet-inner" id="sheetContent"></div>
+
+  </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+/* =========================================
+   ASAL: SMKN 4 MALANG
+========================================= */
+
+const ORIGIN = {
+  name: "SMKN 4 Malang",
+  lat: -7.990185,
+  lng: 112.627345
+};
+
+
+/* =========================================
+   KATEGORI
+========================================= */
+
+const REGIONS = {
+
+  alam: {
+    label: "Wisata Alam",
+    color: "#4F7A3A",
+    icon: "🌿"
+  },
+
+  budaya: {
+    label: "Wisata Budaya",
+    color: "#9A5B2E",
+    icon: "🏛️"
+  },
+
+  sejarah: {
+    label: "Wisata Sejarah",
+    color: "#795548",
+    icon: "🏺"
+  },
+
+  religi: {
+    label: "Wisata Religi",
+    color: "#607D5B",
+    icon: "🕉️"
+  },
+
+  kuliner: {
+    label: "Wisata Kuliner",
+    color: "#D47B2C",
+    icon: "☕"
+  },
+
+  belanja: {
+    label: "Wisata Belanja",
+    color: "#8E5A9A",
+    icon: "🛍️"
+  },
+
+  pertanian: {
+    label: "Wisata Pertanian",
+    color: "#6B8E23",
+    icon: "🌱"
+  },
+
+  petualangan: {
+    label: "Wisata Petualangan",
+    color: "#356B8C",
+    icon: "🥾"
+  },
+
+  buatan: {
+    label: "Wisata Buatan",
+    color: "#B05A5A",
+    icon: "🎡"
+  }
+
+};
+
+
+/* =========================================
+   DATA 9 WISATA
+========================================= */
+
+const PLACES = [
+
+  {
+    id: "pantai-batu-bengkung",
+    region: "alam",
+    wilayah: "Kabupaten Malang",
+    name: "Pantai Batu Bengkung",
+    icon: "🏖️",
+    gambar: "gambar/pantai_batu_bengkung.jpg",
+
+    desc:
+      "Pantai Batu Bengkung merupakan wisata alam dengan pantai yang indah, batu karang, dan suasana alami.",
+
+    price:
+      "± Rp10.000 per orang",
+
+    hours:
+      "Menyesuaikan jam operasional",
+
+    address:
+      "Desa Gajahrejo, Kecamatan Gedangan, Kabupaten Malang, Jawa Timur",
+
+    lat: -8.3820,
+    lng: 112.6110,
+
+    dayaTarik: [
+      "Pemandangan pantai",
+      "Batu karang",
+      "Kolam alami",
+      "Pemandangan matahari terbenam"
+    ],
+
+    fasilitas: [
+      "Area parkir",
+      "Toilet",
+      "Warung",
+      "Tempat bersantai"
+    ],
+
+    kelebihan:
+      "Memiliki pemandangan pantai dan batu karang yang menarik serta cocok untuk menikmati suasana alam.",
+
+    perlindunganAnak:
+      "Anak harus didampingi dan dijauhkan dari ombak besar serta area karang yang berbahaya.",
+
+    aksesibilitas: {
+      kendaraan: "Bisa dicapai menggunakan mobil dan motor melalui jalan menuju kawasan pantai.",
+      parkir: "Tersedia area parkir.",
+      kursiRoda: "Akses kursi roda terbatas karena terdapat area pasir, batu, dan permukaan tidak rata.",
+      jalan: "Beberapa bagian menuju area pantai memiliki permukaan yang tidak rata.",
+      catatan: "Pengunjung dengan kebutuhan khusus sebaiknya didampingi."
+    },
+
+    travel: {
+      carPriv: "±2 jam 30 menit",
+      carPrice: "BBM ±Rp50.000",
+      motorPriv: "±2 jam 45 menit",
+      motorPrice: "BBM ±Rp25.000",
+      grabCar: "±2 jam 30 menit",
+      grabCarPrice: "±Rp150.000–Rp220.000",
+      grabMotor: "±2 jam 45 menit",
+      grabMotorPrice: "±Rp60.000–Rp90.000"
+    }
+  },
+
+
+  {
+    id: "situs-patirtaan-ngawonggo",
+    region: "budaya",
+    wilayah: "Kabupaten Malang",
+    name: "Situs Patirtaan Ngawonggo",
+    icon: "🏛️",
+    gambar: "gambar/patirtaan_ngawonggo.jpg",
+
+    desc:
+      "Situs Patirtaan Ngawonggo merupakan situs budaya dan peninggalan masa lalu yang memiliki nilai sejarah serta budaya.",
+
+    price:
+      "Cek ketentuan pengelola",
+
+    hours:
+      "Menyesuaikan kegiatan wisata",
+
+    address:
+      "Desa Ngawonggo, Kecamatan Tajinan, Kabupaten Malang, Jawa Timur",
+
+    lat: -8.0417,
+    lng: 112.6868,
+
+    dayaTarik: [
+      "Peninggalan kuno",
+      "Nilai budaya",
+      "Lingkungan alami",
+      "Wisata edukasi"
+    ],
+
+    fasilitas: [
+      "Area parkir",
+      "Tempat istirahat",
+      "Area wisata",
+      "Pemandu/pengelola"
+    ],
+
+    kelebihan:
+      "Wisatawan dapat mengenal peninggalan budaya dan sejarah masyarakat Jawa kuno.",
+
+    perlindunganAnak:
+      "Anak harus didampingi, tidak memanjat bangunan, dan tidak merusak atau mengambil benda peninggalan.",
+
+    aksesibilitas: {
+      kendaraan: "Bisa dicapai menggunakan kendaraan pribadi.",
+      parkir: "Tersedia area parkir di sekitar lokasi.",
+      kursiRoda: "Akses kursi roda terbatas karena terdapat area situs dan permukaan yang tidak selalu rata.",
+      jalan: "Beberapa jalur menuju situs dapat berupa jalan kecil atau permukaan tidak rata.",
+      catatan: "Pendampingan disarankan bagi pengguna kursi roda dan lansia."
+    },
+
+    travel: {
+      carPriv: "±30 menit",
+      carPrice: "BBM ±Rp15.000",
+      motorPriv: "±30 menit",
+      motorPrice: "BBM ±Rp8.000",
+      grabCar: "±30–45 menit",
+      grabCarPrice: "±Rp50.000–Rp80.000",
+      grabMotor: "±30–40 menit",
+      grabMotorPrice: "±Rp25.000–Rp40.000"
+    }
+  },
+
+
+  {
+    id: "heritage-kajoetangan",
+    region: "sejarah",
+    wilayah: "Kota Malang",
+    name: "Kampoeng Heritage Kajoetangan",
+    icon: "🏺",
+    gambar: "gambar/heritage_kajoetangan.jpg",
+
+    desc:
+      "Kampoeng Heritage Kajoetangan merupakan kawasan wisata sejarah dengan bangunan lama dan suasana kampung bersejarah.",
+
+    price:
+      "± Rp20.000",
+
+    hours:
+      "Menyesuaikan jam kunjungan",
+
+    address:
+      "Kajoetangan, Kecamatan Klojen, Kota Malang, Jawa Timur",
+
+    lat: -7.9795,
+    lng: 112.6285,
+
+    dayaTarik: [
+      "Bangunan bersejarah",
+      "Arsitektur tempo dulu",
+      "Gang kampung yang unik",
+      "Spot foto"
+    ],
+
+    fasilitas: [
+      "Toilet",
+      "Mushola",
+      "Area kuliner",
+      "Spot foto"
+    ],
+
+    kelebihan:
+      "Cocok untuk mengenal sejarah Kota Malang sambil menikmati suasana kampung tempo dulu.",
+
+    perlindunganAnak:
+      "Anak didampingi saat berjalan di gang dan harus berhati-hati terhadap kendaraan.",
+
+    aksesibilitas: {
+      kendaraan: "Lokasi berada di pusat Kota Malang dan dapat dicapai dengan kendaraan pribadi maupun transportasi online.",
+      parkir: "Area parkir tersedia di sekitar kawasan, tetapi ruang parkir dapat terbatas.",
+      kursiRoda: "Akses kursi roda sebagian terbatas karena terdapat gang sempit dan beberapa permukaan tidak rata.",
+      jalan: "Sebagian besar area berupa jalan kampung dan gang yang dapat dilalui dengan berjalan kaki.",
+      catatan: "Perlu pendampingan bagi pengguna kursi roda, lansia, dan anak-anak."
+    },
+
+    travel: {
+      carPriv: "±10 menit",
+      carPrice: "BBM ±Rp5.000",
+      motorPriv: "±10 menit",
+      motorPrice: "BBM ±Rp3.000",
+      grabCar: "±10–20 menit",
+      grabCarPrice: "±Rp20.000–Rp35.000",
+      grabMotor: "±10–15 menit",
+      grabMotorPrice: "±Rp10.000–Rp20.000"
+    }
+  },
+
+
+  {
+    id: "patirtaan-watu-gede",
+    region: "religi",
+    wilayah: "Kabupaten Malang",
+    name: "Patirtaan Watu Gede",
+    icon: "🕉️",
+    gambar: "gambar/patirtaan_watu_gede.jpg",
+
+    desc:
+      "Patirtaan Watu Gede merupakan situs yang berkaitan dengan peninggalan dan kepercayaan Hindu-Buddha pada masa Jawa kuno.",
+
+    price:
+      "Cek ketentuan pengelola",
+
+    hours:
+      "Menyesuaikan kegiatan kunjungan",
+
+    address:
+      "Kabupaten Malang, Jawa Timur",
+
+    lat: -7.9580,
+    lng: 112.7230,
+
+    dayaTarik: [
+      "Situs patirtaan",
+      "Nilai religi",
+      "Peninggalan Jawa kuno",
+      "Suasana alami"
+    ],
+
+    fasilitas: [
+      "Area parkir",
+      "Tempat istirahat",
+      "Area situs",
+      "Fasilitas dasar"
+    ],
+
+    kelebihan:
+      "Memberikan pengalaman untuk mengenal peninggalan religi dan sejarah kepercayaan masyarakat Jawa kuno.",
+
+    perlindunganAnak:
+      "Anak harus didampingi, menjaga sopan santun, serta berhati-hati di area air dan permukaan yang licin.",
+
+    aksesibilitas: {
+      kendaraan: "Dapat dicapai menggunakan kendaraan pribadi.",
+      parkir: "Tersedia area parkir di sekitar lokasi.",
+      kursiRoda: "Akses kursi roda terbatas karena kondisi situs dan permukaan tanah yang tidak selalu rata.",
+      jalan: "Beberapa bagian jalur dapat licin atau tidak rata, terutama di sekitar area air.",
+      catatan: "Pendampingan sangat disarankan untuk lansia dan pengguna kursi roda."
+    },
+
+    travel: {
+      carPriv: "±30–40 menit",
+      carPrice: "BBM ±Rp15.000",
+      motorPriv: "±30–40 menit",
+      motorPrice: "BBM ±Rp8.000",
+      grabCar: "±30–45 menit",
+      grabCarPrice: "±Rp50.000–Rp80.000",
+      grabMotor: "±30–45 menit",
+      grabMotorPrice: "±Rp25.000–Rp40.000"
+    }
+  },
+
+
+  {
+    id: "kopi-kaliurang",
+    region: "kuliner",
+    wilayah: "Malang",
+    name: "Kopi Kaliurang",
+    icon: "☕",
+    gambar: "gambar/kopi_kaliurang.jpg",
+
+    desc:
+      "Kopi Kaliurang merupakan tempat untuk menikmati kopi dan berbagai makanan dengan suasana yang nyaman.",
+
+    price:
+      "Bervariasi sesuai menu",
+
+    hours:
+      "Menyesuaikan jam operasional",
+
+    address:
+      "Kawasan Kaliurang, Malang, Jawa Timur",
+
+    lat: -7.9560,
+    lng: 112.6170,
+
+    dayaTarik: [
+      "Beragam pilihan kopi",
+      "Makanan dan minuman",
+      "Suasana nyaman",
+      "Tempat berkumpul"
+    ],
+
+    fasilitas: [
+      "Tempat makan",
+      "Tempat duduk",
+      "Area parkir",
+      "Toilet"
+    ],
+
+    kelebihan:
+      "Cocok untuk menikmati makanan dan minuman sambil berkumpul bersama keluarga atau teman.",
+
+    perlindunganAnak:
+      "Anak didampingi dan dijauhkan dari minuman panas serta peralatan dapur.",
+
+    aksesibilitas: {
+      kendaraan: "Mudah dicapai menggunakan mobil, motor, dan transportasi online.",
+      parkir: "Tersedia area parkir untuk pengunjung.",
+      kursiRoda: "Akses relatif lebih mudah, tetapi tetap bergantung pada kondisi pintu masuk dan area tempat duduk.",
+      jalan: "Akses menuju lokasi berupa jalan perkotaan yang dapat dilalui kendaraan.",
+      catatan: "Sebaiknya memilih tempat duduk yang mudah dijangkau bagi pengguna kursi roda."
+    },
+
+    travel: {
+      carPriv: "±15 menit",
+      carPrice: "BBM ±Rp7.000",
+      motorPriv: "±15 menit",
+      motorPrice: "BBM ±Rp4.000",
+      grabCar: "±15–25 menit",
+      grabCarPrice: "±Rp25.000–Rp40.000",
+      grabMotor: "±15–20 menit",
+      grabMotorPrice: "±Rp12.000–Rp22.000"
+    }
+  },
+
+
+  {
+    id: "the-java-merchandise",
+    region: "belanja",
+    wilayah: "Kota Batu",
+    name: "The Java Merchandise",
+    icon: "🛍️",
+    gambar: "gambar/the_java_merchandise.jpg",
+
+    desc:
+      "The Java Merchandise merupakan tempat berbelanja berbagai merchandise dan produk yang dapat dijadikan oleh-oleh.",
+
+    price:
+      "Gratis masuk, harga produk bervariasi",
+
+    hours:
+      "Menyesuaikan jam operasional",
+
+    address:
+      "Jl. Patimura No. 34, Temas, Kecamatan Batu, Kota Batu, Jawa Timur",
+
+    lat: -7.8688,
+    lng: 112.5295,
+
+    dayaTarik: [
+      "Berbagai merchandise",
+      "Oleh-oleh",
+      "Produk kenang-kenangan",
+      "Pilihan barang yang beragam"
+    ],
+
+    fasilitas: [
+      "Area belanja",
+      "Display produk",
+      "Tempat pembayaran",
+      "Area toko"
+    ],
+
+    kelebihan:
+      "Cocok untuk wisatawan yang ingin membeli oleh-oleh atau merchandise sebagai kenang-kenangan.",
+
+    perlindunganAnak:
+      "Anak didampingi saat berada di toko dan tidak dibiarkan berjalan sendiri ketika kondisi ramai.",
+
+    aksesibilitas: {
+      kendaraan: "Mudah dicapai dengan mobil, motor, dan transportasi online.",
+      parkir: "Tersedia area parkir di sekitar toko.",
+      kursiRoda: "Akses kursi roda relatif mudah pada area toko, tetapi perlu menyesuaikan kondisi pintu dan ruang di dalam.",
+      jalan: "Lokasi berada di kawasan perkotaan dengan akses jalan yang cukup mudah.",
+      catatan: "Pengunjung dapat meminta bantuan petugas apabila membutuhkan bantuan akses."
+    },
+
+    travel: {
+      carPriv: "±40 menit",
+      carPrice: "BBM ±Rp20.000",
+      motorPriv: "±45 menit",
+      motorPrice: "BBM ±Rp10.000",
+      grabCar: "±40–55 menit",
+      grabCarPrice: "±Rp60.000–Rp90.000",
+      grabMotor: "±40–50 menit",
+      grabMotorPrice: "±Rp30.000–Rp50.000"
+    }
+  },
+
+
+  {
+    id: "durian-fantasi-batu",
+    region: "pertanian",
+    wilayah: "Kota Batu",
+    name: "Durian Fantasi (DUFAN) Batu",
+    icon: "🌱",
+    gambar: "gambar/durian_fantasi.jpg",
+
+    desc:
+      "Durian Fantasi Batu merupakan wisata yang mengenalkan durian dan kegiatan yang berkaitan dengan agrowisata.",
+
+    price:
+      "Mulai ± Rp20.000",
+
+    hours:
+      "09.00–19.00 WIB",
+
+    address:
+      "Jl. Abdul Gani Atas No. 01, Ngaglik, Kota Batu, Jawa Timur",
+
+    lat: -7.8710,
+    lng: 112.5228,
+
+    dayaTarik: [
+      "Wisata durian",
+      "Kegiatan agrowisata",
+      "Edukasi pertanian",
+      "Kuliner durian"
+    ],
+
+    fasilitas: [
+      "Restoran",
+      "Toilet",
+      "Mushola",
+      "Area parkir"
+    ],
+
+    kelebihan:
+      "Menggabungkan wisata, edukasi pertanian, dan pengalaman menikmati berbagai olahan durian.",
+
+    perlindunganAnak:
+      "Anak didampingi saat mengikuti kegiatan dan tidak diperbolehkan memanjat pohon atau masuk ke area terlarang.",
+
+    aksesibilitas: {
+      kendaraan: "Dapat dicapai menggunakan mobil dan motor melalui jalan menuju kawasan wisata.",
+      parkir: "Tersedia area parkir.",
+      kursiRoda: "Beberapa fasilitas dapat diakses, tetapi area kebun atau tanah pertanian mungkin lebih sulit untuk kursi roda.",
+      jalan: "Area fasilitas utama relatif lebih mudah, sedangkan area kebun dapat memiliki permukaan tanah yang tidak rata.",
+      catatan: "Pengguna kursi roda sebaiknya didampingi saat menuju area kebun."
+    },
+
+    travel: {
+      carPriv: "±45 menit",
+      carPrice: "BBM ±Rp25.000",
+      motorPriv: "±50 menit",
+      motorPrice: "BBM ±Rp12.000",
+      grabCar: "±45–60 menit",
+      grabCarPrice: "±Rp70.000–Rp100.000",
+      grabMotor: "±45–60 menit",
+      grabMotorPrice: "±Rp35.000–Rp55.000"
+    }
+  },
+
+
+  {
+    id: "lembah-bromo",
+    region: "petualangan",
+    wilayah: "Kabupaten Malang",
+    name: "Lembah Bromo",
+    icon: "🥾",
+    gambar: "gambar/lembah_bromo.jpg",
+
+    desc:
+      "Lembah Bromo merupakan destinasi wisata petualangan dengan suasana alam dan kegiatan luar ruangan.",
+
+    price:
+      "Cek ketentuan pengelola",
+
+    hours:
+      "Menyesuaikan kondisi wisata",
+
+    address:
+      "Gubukklakah, Kecamatan Poncokusumo, Kabupaten Malang, Jawa Timur",
+
+    lat: -8.0110,
+    lng: 112.8540,
+
+    dayaTarik: [
+      "Pemandangan alam",
+      "Suasana pegunungan",
+      "Kegiatan luar ruangan",
+      "Spot foto"
+    ],
+
+    fasilitas: [
+      "Area parkir",
+      "Jalur wisata",
+      "Tempat istirahat",
+      "Warung"
+    ],
+
+    kelebihan:
+      "Cocok bagi wisatawan yang menyukai kegiatan alam dan pengalaman wisata yang aktif.",
+
+    perlindunganAnak:
+      "Anak harus didampingi, mengikuti jalur yang ditentukan, dan menggunakan perlengkapan keselamatan jika diperlukan.",
+
+    aksesibilitas: {
+      kendaraan: "Dapat dicapai dengan kendaraan pribadi, tetapi akses menuju kawasan wisata dapat melewati jalan pegunungan.",
+      parkir: "Tersedia area parkir di kawasan wisata.",
+      kursiRoda: "Akses kursi roda terbatas karena kondisi alam dan jalur yang tidak selalu rata.",
+      jalan: "Beberapa jalur berupa jalan tanah, tanjakan, atau permukaan tidak rata.",
+      catatan: "Pengguna kursi roda dan lansia membutuhkan pendampingan tambahan."
+    },
+
+    travel: {
+      carPriv: "±2 jam",
+      carPrice: "BBM ±Rp40.000",
+      motorPriv: "±2 jam 15 menit",
+      motorPrice: "BBM ±Rp20.000",
+      grabCar: "±2–2,5 jam",
+      grabCarPrice: "±Rp150.000–Rp250.000",
+      grabMotor: "±2–2,5 jam",
+      grabMotorPrice: "±Rp70.000–Rp110.000"
+    }
+  },
+
+
+  {
+    id: "santerra-de-laponte",
+    region: "buatan",
+    wilayah: "Kabupaten Malang",
+    name: "Santerra De Laponte",
+    icon: "🎡",
+    gambar: "gambar/santerra_de_laponte.jpg",
+
+    desc:
+      "Santerra De Laponte merupakan wisata buatan dengan taman bunga, berbagai spot foto, dan wahana hiburan.",
+
+    price:
+      "± Rp30.000",
+
+    hours:
+      "Menyesuaikan jam operasional",
+
+    address:
+      "Jl. Raya Madya, Jurang Rejo, Pandesari, Kecamatan Pujon, Kabupaten Malang, Jawa Timur",
+
+    lat: -7.8370,
+    lng: 112.4770,
+
+    dayaTarik: [
+      "Taman bunga",
+      "Spot foto",
+      "Wahana permainan",
+      "Konsep bangunan unik"
+    ],
+
+    fasilitas: [
+      "Toilet",
+      "Mushola",
+      "Food court",
+      "Gazebo",
+      "Area parkir"
+    ],
+
+    kelebihan:
+      "Memiliki banyak area menarik untuk berfoto, bermain, dan menikmati suasana wisata bersama keluarga.",
+
+    perlindunganAnak:
+      "Pilih wahana sesuai usia anak, dampingi selama bermain, dan ikuti aturan keselamatan.",
+
+    aksesibilitas: {
+      kendaraan: "Mudah dicapai menggunakan mobil, motor, dan kendaraan wisata.",
+      parkir: "Tersedia area parkir untuk pengunjung.",
+      kursiRoda: "Beberapa fasilitas utama dapat diakses kursi roda, tetapi akses ke beberapa wahana dan area tertentu dapat terbatas.",
+      jalan: "Terdapat jalur pejalan kaki di kawasan wisata, tetapi beberapa area memiliki permukaan yang menanjak atau tidak rata.",
+      catatan: "Pengguna kursi roda dan lansia sebaiknya didampingi saat berpindah antararea."
+    },
+
+    travel: {
+      carPriv: "±1 jam",
+      carPrice: "BBM ±Rp30.000",
+      motorPriv: "±1 jam 15 menit",
+      motorPrice: "BBM ±Rp15.000",
+      grabCar: "±1–1,5 jam",
+      grabCarPrice: "±Rp80.000–Rp130.000",
+      grabMotor: "±1–1,5 jam",
+      grabMotorPrice: "±Rp40.000–Rp65.000"
+    }
+  }
+
+];
+
+
+/* =========================================
+   HITUNG JARAK
+========================================= */
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+
+  const R = 6371;
+
+  const dLat =
+    (lat2 - lat1) * Math.PI / 180;
+
+  const dLon =
+    (lon2 - lon1) * Math.PI / 180;
+
+  const a =
+    Math.sin(dLat / 2) *
+    Math.sin(dLat / 2) +
+
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
+
+  const c =
+    2 *
+    Math.atan2(
+      Math.sqrt(a),
+      Math.sqrt(1 - a)
+    );
+
+  return R * c;
+}
+
+
+function formatDistance(place) {
+
+  const distance =
+    calculateDistance(
+      ORIGIN.lat,
+      ORIGIN.lng,
+      place.lat,
+      place.lng
+    );
+
+  if (distance < 1) {
+
+    return (
+      Math.round(distance * 1000) +
+      " meter"
+    );
+
+  }
+
+  return distance.toFixed(1) + " km";
+}
+
+
+/* =========================================
+   VARIABEL
+========================================= */
+
+let activeFilter = "semua";
+
+const markers = {};
+
+
+/* =========================================
+   RUTE
+========================================= */
+
+let routeLine = null;
+
+const routeColor = "#c62828";
+
+
+/* =========================================
+   MAP
+========================================= */
+
+const map =
+  L.map("map").setView(
+    [-7.965, 112.60],
+    10
+  );
+
+
+L.tileLayer(
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  {
+    maxZoom: 19,
+
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }
+).addTo(map);
+
+
+/* =========================================
+   MARKER TITIK AWAL
+========================================= */
+
+const startIcon = L.divIcon({
+
+  className: "",
+
+  html: `
+    <div class="start-marker">
+      🏫
+    </div>
+  `,
+
+  iconSize: [44, 44],
+
+  iconAnchor: [22, 22],
+
+  popupAnchor: [0, -25]
+
+});
+
+
+const startMarker =
+  L.marker(
+    [
+      ORIGIN.lat,
+      ORIGIN.lng
+    ],
+    {
+      icon: startIcon,
+
+      zIndexOffset: 1000
+    }
+  ).addTo(map);
+
+
+/*
+  Label titik awal selalu terlihat
+*/
+
+startMarker.bindTooltip(
+  "📍 Titik Awal: SMKN 4 Malang",
+  {
+    permanent: true,
+
+    direction: "top",
+
+    offset: [0, -22],
+
+    className: "start-label"
+  }
+);
+
+
+/*
+  Popup ketika ikon titik awal diklik
+*/
+
+startMarker.bindPopup(`
+
+  <div style="text-align:center;">
+
+    <strong>
+      🏫 SMKN 4 Malang
+    </strong>
+
+    <br>
+
+    <span style="font-size:12px;">
+      📍 Titik Awal Perjalanan
+    </span>
+
+  </div>
+
+`);
+
+
+/* =========================================
+   ICON MARKER WISATA
+========================================= */
+
+function makeIcon(region, emoji) {
+
+  const color =
+    REGIONS[region]?.color ||
+    "#765033";
+
+  return L.divIcon({
+
+    className: "",
+
+    html: `
+      <div
+        class="custom-marker"
+        style="background:${color};"
+      >
+        <span>${emoji}</span>
+      </div>
+    `,
+
+    iconSize: [38, 38],
+
+    iconAnchor: [19, 38],
+
+    popupAnchor: [0, -38]
+
+  });
+
+}
+
+
+/* =========================================
+   TAMPILKAN RUTE
+========================================= */
+
+function tampilkanRute(place) {
+
+  /*
+    Hapus rute sebelumnya
+  */
+
+  if (routeLine) {
+
+    map.removeLayer(routeLine);
+
+    routeLine = null;
+
+  }
+
+
+  /*
+    OSRM menggunakan:
+    longitude,latitude
+  */
+
+  const url =
+    "https://router.project-osrm.org/route/v1/driving/" +
+
+    ORIGIN.lng + "," + ORIGIN.lat +
+
+    ";" +
+
+    place.lng + "," + place.lat +
+
+    "?overview=full&geometries=geojson";
+
+
+  fetch(url)
+
+    .then(response => {
+
+      if (!response.ok) {
+
+        throw new Error(
+          "Gagal mengambil rute"
+        );
+
+      }
+
+      return response.json();
+
+    })
+
+    .then(data => {
+
+      if (
+        !data.routes ||
+        data.routes.length === 0
+      ) {
+
+        console.log(
+          "Rute tidak ditemukan."
+        );
+
+        return;
+
+      }
+
+
+      const route =
+        data.routes[0];
+
+
+      /*
+        Koordinat GeoJSON OSRM:
+        [longitude, latitude]
+
+        Leaflet:
+        [latitude, longitude]
+      */
+
+      const coordinates =
+        route.geometry.coordinates.map(
+          coordinate => [
+
+            coordinate[1],
+
+            coordinate[0]
+
+          ]
+        );
+
+
+      /*
+        Buat garis rute
+      */
+
+      routeLine =
+        L.polyline(
+          coordinates,
+          {
+
+            color: routeColor,
+
+            weight: 6,
+
+            opacity: 0.8
+
+          }
+        ).addTo(map);
+
+
+      /*
+        Tampilkan seluruh rute
+      */
+
+      map.fitBounds(
+        routeLine.getBounds(),
+        {
+          padding: [50, 50]
+        }
+      );
+
+    })
+
+    .catch(error => {
+
+      console.log(
+        "Gagal mengambil rute:",
+        error
+      );
+
+    });
+
+}
+
+
+/* =========================================
+   MARKER WISATA
+========================================= */
+
+PLACES.forEach(place => {
+
+  const marker =
+    L.marker(
+      [place.lat, place.lng],
+      {
+        icon:
+          makeIcon(
+            place.region,
+            place.icon
+          )
+      }
+    ).addTo(map);
+
+
+  marker.bindPopup(`
+
+    <div class="popup-title">
+      ${place.icon} ${place.name}
+    </div>
+
+    <div class="popup-region">
+      ${REGIONS[place.region].label}
+    </div>
+
+    <div class="popup-distance">
+      📍 Jarak:
+      <strong>
+        ${formatDistance(place)}
+      </strong>
+    </div>
+
+    <button
+      class="popup-button"
+      onclick="openSheet('${place.id}')"
+    >
+      Lihat Detail
+    </button>
+
+    <button
+      class="route-popup-button"
+      onclick="tampilkanRute(PLACES.find(p => p.id === '${place.id}'))"
+    >
+      🧭 Petunjuk Jalan
+    </button>
+
+  `);
+
+
+  /*
+    Saat marker wisata diklik:
+    langsung tampilkan rute
+  */
+
+  marker.on("click", () => {
+
+    activeFilter =
+      place.region;
+
+    updateTabs();
+
+    tampilkanRute(place);
+
+  });
+
+
+  markers[place.id] =
+    marker;
+
+});
+
+
+/* =========================================
+   TAB
+========================================= */
+
+function buildTabs() {
+
+  const tabs =
+    document.getElementById("tabs");
+
+  tabs.innerHTML = "";
+
+
+  const allButton =
+    document.createElement("button");
+
+  allButton.className = "tab";
+
+  allButton.dataset.filter = "semua";
+
+  allButton.innerHTML =
+    "📍 Semua";
+
+
+  allButton.onclick = () => {
+
+    activeFilter = "semua";
+
+    updateTabs();
+
+    renderAll();
+
+    fitVisibleMarkers();
+
+  };
+
+
+  tabs.appendChild(allButton);
+
+
+  Object.entries(REGIONS).forEach(
+    ([id, region]) => {
+
+      const button =
+        document.createElement("button");
+
+      button.className = "tab";
+
+      button.dataset.filter = id;
+
+      button.innerHTML =
+        `${region.icon} ${region.label}`;
+
+
+      button.onclick = () => {
+
+        activeFilter = id;
+
+        updateTabs();
+
+        renderAll();
+
+        fitVisibleMarkers();
+
+      };
+
+
+      tabs.appendChild(button);
+
+    }
+  );
+
+
+  updateTabs();
+
+}
+
+
+function updateTabs() {
+
+  document
+    .querySelectorAll(".tab")
+    .forEach(button => {
+
+      button.classList.toggle(
+        "active",
+        button.dataset.filter ===
+        activeFilter
+      );
+
+    });
+
+}
+
+
+/* =========================================
+   RENDER LIST
+========================================= */
+
+function renderAll() {
+
+  const list =
+    document.getElementById("placeList");
+
+  const count =
+    document.getElementById("listCount");
+
+  list.innerHTML = "";
+
+
+  const filtered =
+    activeFilter === "semua"
+      ? PLACES
+      : PLACES.filter(
+          place =>
+            place.region === activeFilter
+        );
+
+
+  count.textContent =
+    `${filtered.length} destinasi ditemukan`;
+
+
+  if (filtered.length === 0) {
+
+    list.innerHTML = `
+      <div class="empty">
+        Tidak ada destinasi
+        pada kategori ini.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  filtered.forEach(place => {
+
+    const region =
+      REGIONS[place.region];
+
+
+    const card =
+      document.createElement("article");
+
+    card.className = "card";
+
+
+    card.innerHTML = `
+
+      <div class="card-content">
+
+        <div class="card-top">
+
+          <div
+            class="card-icon"
+            style="
+              background:${region.color}20;
+            "
+          >
+            ${place.icon}
+          </div>
+
+          <div>
+
+            <h3>
+              ${place.name}
+            </h3>
+
+            <div class="card-region">
+              ${region.label}
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <p class="card-desc">
+          ${place.desc}
+        </p>
+
+
+        <div class="card-meta">
+
+          <span class="badge">
+            📍 ${formatDistance(place)}
+          </span>
+
+          <span class="badge">
+            🎟️ ${place.price}
+          </span>
+
+          <span class="badge">
+            🕐 ${place.hours}
+          </span>
+
+        </div>
+
+      </div>
+
+    `;
+
+
+    /*
+      Saat kartu diklik:
+      buka detail
+      pindahkan peta
+      buka popup
+      lalu tampilkan rute
+    */
+
+    card.addEventListener(
+      "click",
+      () => {
+
+        openSheet(place.id);
+
+        map.setView(
+          [
+            place.lat,
+            place.lng
+          ],
+          14
+        );
+
+        markers[
+          place.id
+        ].openPopup();
+
+        tampilkanRute(place);
+
+      }
+    );
+
+
+    list.appendChild(card);
+
+  });
+
+}
+
+
+/* =========================================
+   FIT MARKER
+========================================= */
+
+function fitVisibleMarkers() {
+
+  const filtered =
+    activeFilter === "semua"
+      ? PLACES
+      : PLACES.filter(
+          place =>
+            place.region === activeFilter
+        );
+
+
+  if (filtered.length === 0) {
+    return;
+  }
+
+
+  const bounds =
+    L.latLngBounds(
+      filtered.map(
+        place => [
+          place.lat,
+          place.lng
+        ]
+      )
+    );
+
+
+  if (filtered.length === 1) {
+
+    map.setView(
+      [
+        filtered[0].lat,
+        filtered[0].lng
+      ],
+      14
+    );
+
+  } else {
+
+    map.fitBounds(
+      bounds,
+      {
+        padding: [40, 40]
+      }
+    );
+
+  }
+
+}
+
+
+/* =========================================
+   OPEN DETAIL
+========================================= */
+
+function openSheet(id) {
+
+  const place =
+    PLACES.find(
+      item =>
+        item.id === id
+    );
+
+
+  if (!place) {
+    return;
+  }
+
+
+  const region =
+    REGIONS[place.region];
+
+
+  const distance =
+    formatDistance(place);
+
+
+  const dayaTarik =
+    place.dayaTarik
+      .map(
+        item =>
+          `<li>${item}</li>`
+      )
+      .join("");
+
+
+  const fasilitas =
+    place.fasilitas
+      .map(
+        item =>
+          `<li>${item}</li>`
+      )
+      .join("");
+
+
+  const googleMapsUrl =
+    `https://www.google.com/maps/search/?api=1&query=${place.lat},${place.lng}`;
+
+
+  const content =
+    document.getElementById(
+      "sheetContent"
+    );
+
+
+  content.innerHTML = `
+
+    <img
+      class="sheet-image"
+      src="${place.gambar}"
+      alt="${place.name}"
+      onerror="
+        this.src='https://placehold.co/1200x600?text=Gambar+Wisata';
+      "
+    >
+
+
+    <div class="sheet-content">
+
+      <div
+        class="sheet-category"
+        style="
+          background:${region.color}20;
+          color:${region.color};
+        "
+      >
+        ${region.icon}
+        ${region.label}
+      </div>
+
+
+      <h2 class="sheet-title">
+        ${place.name}
+      </h2>
+
+
+      <p class="sheet-address">
+        📍 ${place.address}
+      </p>
+
+
+      <div class="distance-box">
+
+        <div class="distance-title">
+          Jarak dari ${ORIGIN.name}
+        </div>
+
+        <div class="distance-value">
+          📍 ± ${distance}
+        </div>
+
+        <div class="distance-note">
+          Jarak dihitung otomatis
+          berdasarkan koordinat lokasi.
+        </div>
+
+      </div>
+
+
+      <div class="info-grid">
+
+        <div class="info-box">
+
+          <div class="info-label">
+            Harga Tiket
+          </div>
+
+          <div class="info-value">
+            🎟️ ${place.price}
+          </div>
+
+        </div>
+
+
+        <div class="info-box">
+
+          <div class="info-label">
+            Jam Buka
+          </div>
+
+          <div class="info-value">
+            🕐 ${place.hours}
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="detail-section">
+
+        <h3>
+          Tentang Wisata
+        </h3>
+
+        <p>
+          ${place.desc}
+        </p>
+
+      </div>
+
+
+      <div class="detail-section">
+
+        <h3>
+          Daya Tarik
+        </h3>
+
+        <ul>
+          ${dayaTarik}
+        </ul>
+
+      </div>
+
+
+      <div class="detail-section">
+
+        <h3>
+          Fasilitas
+        </h3>
+
+        <ul>
+          ${fasilitas}
+        </ul>
+
+      </div>
+
+
+      <div class="detail-section">
+
+        <h3>
+          Kelebihan
+        </h3>
+
+        <p>
+          ${place.kelebihan}
+        </p>
+
+      </div>
+
+
+      <!-- AKSESIBILITAS -->
+
+      <div class="detail-section">
+
+        <h3>
+          ♿ Aksesibilitas
+        </h3>
+
+        <div class="accessibility-box">
+
+          <div class="accessibility-item">
+
+            <div class="accessibility-icon">
+              🚗
+            </div>
+
+            <div class="accessibility-text">
+              <strong>Akses kendaraan:</strong><br>
+              ${place.aksesibilitas.kendaraan}
+            </div>
+
+          </div>
+
+
+          <div class="accessibility-item">
+
+            <div class="accessibility-icon">
+              🅿️
+            </div>
+
+            <div class="accessibility-text">
+              <strong>Parkir:</strong><br>
+              ${place.aksesibilitas.parkir}
+            </div>
+
+          </div>
+
+
+          <div class="accessibility-item">
+
+            <div class="accessibility-icon">
+              ♿
+            </div>
+
+            <div class="accessibility-text">
+              <strong>Kursi roda:</strong><br>
+              ${place.aksesibilitas.kursiRoda}
+            </div>
+
+          </div>
+
+
+          <div class="accessibility-item">
+
+            <div class="accessibility-icon">
+              🚶
+            </div>
+
+            <div class="accessibility-text">
+              <strong>Akses jalan:</strong><br>
+              ${place.aksesibilitas.jalan}
+            </div>
+
+          </div>
+
+
+          <div class="accessibility-item">
+
+            <div class="accessibility-icon">
+              ℹ️
+            </div>
+
+            <div class="accessibility-text">
+              <strong>Catatan:</strong><br>
+              ${place.aksesibilitas.catatan}
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- PERLINDUNGAN ANAK -->
+
+      <div class="detail-section">
+
+        <h3>
+          Perlindungan Anak
+        </h3>
+
+        <p>
+          👨‍👩‍👧 ${place.perlindunganAnak}
+        </p>
+
+      </div>
+
+
+      <!-- PERKIRAAN PERJALANAN -->
+
+      <div class="detail-section">
+
+        <h3>
+          Perkiraan Perjalanan
+        </h3>
+
+        <div class="travel-note">
+          💡 Harga perjalanan merupakan perkiraan dan dapat
+          berubah sesuai kondisi lalu lintas, harga BBM,
+          tarif aplikasi, waktu perjalanan, dan permintaan.
+        </div>
+
+        <div class="travel-grid">
+
+          <div class="travel-box">
+            🚗 Mobil pribadi
+            <br>
+            <strong>
+              ${place.travel.carPriv}
+            </strong>
+            <div class="travel-price">
+              💰 ${place.travel.carPrice}
+            </div>
+          </div>
+
+
+          <div class="travel-box">
+            🏍️ Motor pribadi
+            <br>
+            <strong>
+              ${place.travel.motorPriv}
+            </strong>
+            <div class="travel-price">
+              💰 ${place.travel.motorPrice}
+            </div>
+          </div>
+
+
+          <div class="travel-box">
+            🚕 GrabCar
+            <br>
+            <strong>
+              ${place.travel.grabCar}
+            </strong>
+            <div class="travel-price">
+              💰 ${place.travel.grabCarPrice}
+            </div>
+          </div>
+
+
+          <div class="travel-box">
+            🛵 GrabMotor
+            <br>
+            <strong>
+              ${place.travel.grabMotor}
+            </strong>
+            <div class="travel-price">
+              💰 ${place.travel.grabMotorPrice}
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <a
+        class="maps-btn"
+        href="${googleMapsUrl}"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        📍 Buka Lokasi di Google Maps
+      </a>
+
+    </div>
+
+  `;
+
+
+  document
+    .getElementById("overlay")
+    .classList.add("show");
+
+
+  document.body.style.overflow =
+    "hidden";
+
+}
+
+
+/* =========================================
+   CLOSE DETAIL
+========================================= */
+
+function closeSheet() {
+
+  document
+    .getElementById("overlay")
+    .classList.remove("show");
+
+
+  document.body.style.overflow = "";
+
+  map.closePopup();
+
+}
+
+
+/* =========================================
+   KLIK LUAR DETAIL
+========================================= */
+
+document
+  .getElementById("overlay")
+  .addEventListener(
+    "click",
+    function(event) {
+
+      if (event.target === this) {
+        closeSheet();
+      }
+
+    }
+  );
+
+
+/* =========================================
+   TOMBOL ESC
+========================================= */
+
+document.addEventListener(
+  "keydown",
+  function(event) {
+
+    if (event.key === "Escape") {
+      closeSheet();
+    }
+
+  }
+);
+
+
+/* =========================================
+   JALANKAN
+========================================= */
+
+buildTabs();
+
+renderAll();
+
+setTimeout(
+  () => {
+
+    map.invalidateSize();
+
+  },
+  300
+);
+
+</script>
+
+</body>
+</html>
